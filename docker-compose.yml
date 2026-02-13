@@ -1,0 +1,30 @@
+services:
+  autofirma:
+    build:
+      context: .
+      args:
+        USER_ID: ${UID:-1000}
+        GROUP_ID: ${GID:-1000}
+    environment:
+      - DISPLAY=${DISPLAY}
+      - WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
+      - XDG_RUNTIME_DIR=/run/user/${UID:-1000}
+      - QT_QPA_PLATFORM=wayland
+      # Java often needs this for Wayland support
+      - _JAVA_AWT_WM_NONREPARENTING=1
+    volumes:
+      # X11 Socket
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      # Wayland Socket
+      - ${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY}:/run/user/${UID:-1000}/${WAYLAND_DISPLAY}
+      # User home for persistence (optional but recommended)
+      - ./home:/home/egarcia
+      # DBus is sometimes needed for notifications/integrations
+      - /run/user/${UID:-1000}/bus:/run/user/${UID:-1000}/bus
+    user: "${UID:-1000}:${GID:-1000}"
+    network_mode: host
+    privileged: true # Sometimes needed for device access (smart cards)
+    devices:
+      - /dev/dri:/dev/dri # GPU acceleration
+      # If using a physical smart card reader, you might need to map it
+      # - /dev/bus/usb:/dev/bus/usb
