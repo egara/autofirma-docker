@@ -1,43 +1,69 @@
-# Autofirma & Firefox in Docker (Wayland/NixOS friendly)
+# Firefox + AutoFirma in Docker (Wayland/X11)
 
-Este proyecto levanta un contenedor con Firefox y Autofirma preconfigurados y conectados.
+A containerized environment for running Firefox and AutoFirma seamlessly on Linux, specifically optimized for Wayland (e.g., NixOS, Fedora, GNOME/Plasma) while maintaining X11 compatibility.
 
-## Requisitos previos
+This project solves the complexity of installing AutoFirma and its dependencies by isolating them in a Docker container, ensuring proper integration with the host's graphical server and persistent user data.
 
-- Docker
-- Docker Compose
-- Un entorno de escritorio Wayland (o X11 con configuración adicional)
+## Features
 
-## Uso
+- **Base Image**: Ubuntu 24.04 (Noble Numbat).
+- **Native Firefox**: Installed via the `mozillateam/ppa` to avoid Snap-related issues in Docker.
+- **AutoFirma 1.9**: Pre-installed and configured to work with the browser.
+- **Graphical Support**: Native Wayland support with XWayland fallback.
+- **Automatic Integration**: 
+    - Auto-registration of the `afirma://` protocol handler.
+    - Automatic injection of the AutoFirma Root Certificate into the Firefox profile.
+- **User Mapping**: Maps host UID/GID (default 1000:1000) to the container user to prevent permission issues.
+- **Persistence**: Firefox profile, certificates, and downloads are persisted in the `./home` directory on the host.
 
-1.  **Construir y levantar el contenedor:**
+## Included Software
 
-    ```bash
-    # Si tu usuario es 1000:1000 (común en Linux/NixOS)
-    docker-compose up --build
-    ```
+| Software | Version | Source |
+|----------|---------|--------|
+| **Firefox** | Latest (PPA) | [Mozilla Team PPA](https://launchpad.net/~mozillateam/+archive/ubuntu/ppa) |
+| **AutoFirma** | 1.9 | [Portal de Administración Electrónica](https://firmaelectronica.gob.es/Home/Descargas.html) |
+| **OpenJDK** | 17 | [Ubuntu Repositories](https://packages.ubuntu.com/) |
 
-    Si tu UID/GID es diferente:
+## Prerequisites
 
-    ```bash
-    UID=$(id -u) GID=$(id -g) docker-compose up --build
-    ```
+- **Docker** and **Docker Compose**.
+- A Linux host with **Wayland** or **X11**.
+- For Wayland: Ensure your user has permissions to access the Wayland socket (usually handled automatically by the UID mapping).
 
-2.  **Verificar funcionamiento:**
-    - Firefox se abrirá automáticamente.
-    - Autofirma debería estar disponible. Puedes probar a firmar un documento en una sede electrónica.
-    - El certificado raíz de Autofirma se importa automáticamente en Firefox al inicio.
+## Usage
 
-3.  **Persistencia:**
-    - Los datos de usuario (perfil de Firefox, descargas) se guardan en `./home` en el directorio actual.
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/your-username/autofirma-docker.git
+   cd autofirma-docker
+   ```
 
-## Notas sobre Wayland y NixOS
+2. **Launch the container:**
+   ```bash
+   # If your user UID/GID is 1000:1000
+   docker-compose up --build
+   ```
+   If your UID/GID is different:
+   ```bash
+   UID=$(id -u) GID=$(id -g) docker-compose up --build
+   ```
 
-- El `docker-compose.yml` monta el socket de Wayland (`$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY`).
-- Si tienes problemas gráficos, asegúrate de que tu usuario tiene permisos sobre el socket (al usar el mismo UID que el host, esto debería ser automático).
-- Si prefieres usar XWayland (X11), asegúrate de tener `xhost +local:docker` ejecutado en el host y que la variable `DISPLAY` se pase correctamente (ya incluido en el compose).
+3. **Verify:**
+   - Firefox will open automatically.
+   - To test AutoFirma, visit a Spanish government site (e.g., [Valide](https://valide.redsara.es/valide/)) and try to sign a document.
+   - The root certificate is imported on the first run. You can check it in Firefox: `Settings -> Privacy & Security -> Certificates -> View Certificates -> Authorities` (look for "AutoFirma ROOT").
 
-## Solución de problemas
+## Configuration & Persistence
 
-- **Autofirma no se abre al intentar firmar:** Asegúrate de que el certificado "AutoFirma ROOT" está en las Autoridades de Firefox (Ajustes -> Privacidad -> Ver Certificados). El script de inicio intenta añadirlo automáticamente.
-- **Smart Cards / DNIe:** Si usas lector físico, puede que necesites descomentar las líneas de `devices` en `docker-compose.yml` para pasar el USB (`/dev/bus/usb`).
+- **Downloads**: Files downloaded in Firefox appear in `./home/Downloads` on your host.
+- **Firefox Profile**: Stored in `./home/.mozilla`.
+- **Certificates**: Stored in `./home/.afirma`.
+
+### Hardware Tokens (DNIe / Smart Cards)
+
+If you use a physical smart card reader, you may need to pass the USB device to the container. Uncomment the `devices` section in `docker-compose.yml`:
+
+```yaml
+# devices:
+#   - "/dev/bus/usb:/dev/bus/usb"
+```
