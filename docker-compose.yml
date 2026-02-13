@@ -21,6 +21,8 @@ services:
       - ./home:/home/egarcia
       # DBus is sometimes needed for notifications/integrations
       - /run/user/${UID:-1000}/bus:/run/user/${UID:-1000}/bus
+      # Certificates
+      - /home/egarcia/Certificates:/home/egarcia/Certificates:ro
     user: "${UID:-1000}:${GID:-1000}"
     network_mode: host
     privileged: true # Sometimes needed for device access (smart cards)

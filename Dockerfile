@@ -61,6 +61,12 @@ RUN wget -O Autofirma.zip https://firmaelectronica.gob.es/content/dam/firmaelect
     apt-get install -y ./autofirma_*.deb && \
     rm Autofirma.zip autofirma_*.deb
 
+# Download and install Configurador FNMT
+RUN wget -O configuradorfnmt.deb https://descargas.cert.fnmt.es/Linux/configuradorfnmt_5.0.3.amd64.deb && \
+    apt-get update && \
+    apt-get install -y ./configuradorfnmt.deb && \
+    rm configuradorfnmt.deb
+
 # Set up Firefox policy to trust system certificates (Autofirma adds its CA to system store usually)
 # However, Autofirma script might try to add to user's nssdb.
 # We will handle the trust in the entrypoint or ensure it works.

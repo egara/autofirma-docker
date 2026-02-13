@@ -53,6 +53,22 @@ else
     echo "Warning: afirma.desktop not found in /usr/share/applications"
 fi
 
+echo "Configuring FNMT protocol handler..."
+if [ -f "/usr/share/applications/configuradorfnmt.desktop" ]; then
+    cp /usr/share/applications/configuradorfnmt.desktop "$HOME/.local/share/applications/"
+    chmod +x "$HOME/.local/share/applications/configuradorfnmt.desktop"
+    
+    # Register mime type
+    echo "Registering x-scheme-handler/fnmt..."
+    xdg-mime default configuradorfnmt.desktop x-scheme-handler/fnmt
+    
+    # Verify registration
+    echo "Check assignment:"
+    xdg-mime query default x-scheme-handler/fnmt
+else
+    echo "Warning: configuradorfnmt.desktop not found in /usr/share/applications"
+fi
+
 echo "Importing Autofirma certificate into Firefox..."
 if [ -f "$CER_FILE" ]; then
     # Import the cert

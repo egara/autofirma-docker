@@ -9,9 +9,10 @@ This project solves the complexity of installing AutoFirma and its dependencies 
 - **Base Image**: Ubuntu 24.04 (Noble Numbat).
 - **Native Firefox**: Installed via the `mozillateam/ppa` to avoid Snap-related issues in Docker.
 - **AutoFirma 1.9**: Pre-installed and configured to work with the browser.
+- **Configurador FNMT**: Included to handle certificate requests and downloads from the Spanish Mint (FNMT).
 - **Graphical Support**: Native Wayland support with XWayland fallback.
 - **Automatic Integration**: 
-    - Auto-registration of the `afirma://` protocol handler.
+    - Auto-registration of the `afirma://` and `fnmt://` protocol handlers.
     - Automatic injection of the AutoFirma Root Certificate into the Firefox profile.
 - **User Mapping**: Maps host UID/GID (default 1000:1000) to the container user to prevent permission issues.
 - **Persistence**: Firefox profile, certificates, and downloads are persisted in the `./home` directory on the host.
@@ -22,6 +23,7 @@ This project solves the complexity of installing AutoFirma and its dependencies 
 |----------|---------|--------|
 | **Firefox** | Latest (PPA) | [Mozilla Team PPA](https://launchpad.net/~mozillateam/+archive/ubuntu/ppa) |
 | **AutoFirma** | 1.9 | [Portal de Administración Electrónica](https://firmaelectronica.gob.es/Home/Descargas.html) |
+| **Configurador FNMT** | 5.0.3 | [FNMT Downloads](https://www.sede.fnmt.gob.es/descargas/descarga-software) |
 | **OpenJDK** | 17 | [Ubuntu Repositories](https://packages.ubuntu.com/) |
 
 ## Prerequisites
